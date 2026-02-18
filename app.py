@@ -3,10 +3,46 @@ import spacy
 from spacy import displacy
 import streamlit.components.v1 as components
 
-st.title('Reconhecimento de entidades nomeadas (NER)')
+st.set_page_config(
+    page_title="NER Jurídico",
+    page_icon="⚖️",
+    layout="wide"
+)
 
-caminho_modelo = 'modelo'
-modelo = spacy.load(caminho_modelo)
+st.title("Reconhecimento de Entidades Nomeadas")
+st.caption("Modelo treinado com spaCy para análise de textos jurídicos")
+
+st.divider()
+
+@st.cache_resource
+def carregar_modelo():
+    return spacy.load("modelo")
+
+modelo = carregar_modelo()
+
+with st.sidebar:
+    st.header("Configurações")
+    escolha = st.radio(
+        "Entrada de dados:",
+        ["Texto", "Arquivo"]
+    )
+
+texto = ""
+
+if escolha == "Texto":
+    texto = st.text_area(
+        "Insira o texto jurídico:",
+        height=200,
+        placeholder="Digite ou cole o texto aqui..."
+    )
+
+elif escolha == "Arquivo":
+    arquivo = st.file_uploader(
+        "Upload de arquivo .txt",
+        type="txt"
+    )
+    if arquivo is not None:
+        texto = arquivo.read().decode("utf-8")
 
 cores = {
     'B-JURISPRUDENCIA': '#F0F8FF',
@@ -27,22 +63,24 @@ cores = {
     'PER': '#D3D3D3'
 }
 
-options = {
-    "colors": cores
-}
+options = {"colors": cores}
 
-escolha = st.radio(label='Escolha uma opção:', options=['Texto', 'Arquivo'])
-
-texto = ''
-
-if escolha == 'Texto':
-    texto = st.text_area('Insira o texto:')
-elif escolha == 'Arquivo':
-    arquivo = st.file_uploader('Faça o upload do arquivo (somente .txt)', type='txt')
-    if arquivo is not None:
-        texto = arquivo.read().decode('utf-8')
-        
 if texto:
+    st.subheader("Entidades Reconhecidas")
+
     doc = modelo(texto)
-    html = displacy.render(doc, style="ent", page=True, options=options)
-    components.html(html, height=600, scrolling=True)
+
+    html = displacy.render(
+        doc,
+        style="ent",
+        page=False,
+        options=options
+    )
+
+    html_wrapper = f"""
+    <div style="padding: 20px; border-radius: 10px;">
+        {html}
+    </div>
+    """
+
+    components.html(html_wrapper, height=600, scrolling=True)
