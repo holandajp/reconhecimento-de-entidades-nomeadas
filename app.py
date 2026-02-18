@@ -8,6 +8,29 @@ st.title('Reconhecimento de entidades nomeadas (NER)')
 caminho_modelo = 'modelo'
 modelo = spacy.load(caminho_modelo)
 
+cores = {
+    'B-JURISPRUDENCIA': '#F0F8FF',
+    'B-LEGISLACAO': '#FA8072',
+    'B-LOCAL': '#98FB98',
+    'B-ORGANIZACAO': '#DDA0DD',
+    'B-PESSOA': '#F0E68C',
+    'B-TEMPO': '#FFB6C1',
+    'I-JURISPRUDENCIA': '#F0F8FF',
+    'I-LEGISLACAO': '#FA8072',
+    'I-LOCAL': '#98FB98',
+    'I-ORGANIZACAO': '#DDA0DD',
+    'I-PESSOA': '#F0E68C',
+    'I-TEMPO': '#FFB6C1',
+    'LOC': '#D3D3D3',
+    'MISC': '#D3D3D3',
+    'ORG': '#D3D3D3',
+    'PER': '#D3D3D3'
+}
+
+options = {
+    "colors": cores
+}
+
 escolha = st.radio(label='Escolha uma opção:', options=['Texto', 'Arquivo'])
 
 texto = ''
@@ -21,5 +44,5 @@ elif escolha == 'Arquivo':
         
 if texto:
     doc = modelo(texto)
-    html = displacy.render(doc, style="ent", page=True)
+    html = displacy.render(doc, style="ent", page=True, options=options)
     components.html(html, height=600, scrolling=True)
